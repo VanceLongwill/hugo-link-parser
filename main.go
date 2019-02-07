@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"github.com/russross/blackfriday/v2"
 	"io"
@@ -12,10 +13,6 @@ import (
 type LinkRenderer struct {
 	mode string
 }
-
-// empty declarations to implement the blackfriday.Renderer interface
-func (r *LinkRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {}
-func (r *LinkRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {}
 
 type LinkData struct {
 	Title string
@@ -28,6 +25,10 @@ func dataToMap(title, dest []byte) LinkData {
 		string(dest),
 	}
 }
+
+// empty declarations to implement the blackfriday.Renderer interface
+func (r *LinkRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {}
+func (r *LinkRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {}
 
 const (
 	htmlTempl = `
@@ -84,22 +85,18 @@ func (r *LinkRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering 
 
 func GenerateBibliography(mode string, input []byte) []byte {
 	linkRenderer := &LinkRenderer{mode}
-	output := blackfriday.Run(input, blackfriday.WithNoExtensions(), blackfriday.WithRenderer(linkRenderer))
-	return output
+	return blackfriday.Run(input, blackfriday.WithNoExtensions(), blackfriday.WithRenderer(linkRenderer))
 }
 
 func main() {
-	fmt.Println(
-		" ____________________ Markdown Bibliography Generator ____________________",
-	)
+	outputMode := flag.String("m", "md", "output mode: \"md\" (default) or \"html\"")
+	flag.Parse()
 
-	fmt.Println("\nParsing `README.md` links...")
 	f, err := ioutil.ReadFile("README.md")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	output := GenerateBibliography("md", f)
-	fmt.Println("Output:")
+	output := GenerateBibliography(*outputMode, f)
 	fmt.Println(string(output))
 }
