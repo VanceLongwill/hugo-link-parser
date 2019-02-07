@@ -68,11 +68,13 @@ func main() {
 		" ____________________ Markdown Link Extractor ____________________",
 	)
 
+	fmt.Println("\nParsing `README.md` links...\n")
 	f, err := ioutil.ReadFile("README.md")
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	output := GenerateBibiography(f)
+	fmt.Println("HTML Output:\n")
 	fmt.Println(string(output))
 }
