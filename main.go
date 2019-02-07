@@ -89,14 +89,27 @@ func GenerateBibliography(mode string, input []byte) []byte {
 }
 
 func main() {
-	outputMode := flag.String("m", "md", "output mode: \"md\" (default) or \"html\"")
+	outputMode := flag.String("m", "md", "output mode: \"md\" or \"html\"")
 	flag.Parse()
+	userArgs := flag.Args()
 
-	f, err := ioutil.ReadFile("README.md")
-	if err != nil {
-		fmt.Println(err)
+	if len(userArgs) == 0 {
+		fmt.Println("No input file specified!")
+		return
 	}
 
-	output := GenerateBibliography(*outputMode, f)
-	fmt.Println(string(output))
+	for i := 0; i < len(userArgs); i++ {
+		inputFile := userArgs[i]
+		if len(userArgs) > 1 {
+			fmt.Println(inputFile)
+		}
+
+		f, err := ioutil.ReadFile(inputFile)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		output := GenerateBibliography(*outputMode, f)
+		fmt.Println(string(output))
+	}
 }
