@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/russross/blackfriday/v2"
+	"fmt"
 	"io/ioutil"
 	"testing"
 )
@@ -25,11 +25,13 @@ import (
 // }
 
 func TestWithReadme(t *testing.T) {
-	md := blackfriday.New()
 	f, err := ioutil.ReadFile("README.md")
 	if err != nil {
 		t.Error(err)
 	}
-	node := md.Parse(f)
-	node.Walk(Visitor)
+
+	a := GetLinks(f)
+	for i := 0; i < len(a); i++ {
+		fmt.Println(a)
+	}
 }
