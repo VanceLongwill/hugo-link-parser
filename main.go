@@ -90,6 +90,7 @@ func GenerateBibliography(mode string, input []byte) []byte {
 
 func main() {
 	outputMode := flag.String("m", "md", "output mode: \"md\" or \"html\"")
+	appendToFile := flag.Bool("a", false, "append the parsed links to the end of the file")
 	flag.Parse()
 	userArgs := flag.Args()
 
@@ -110,6 +111,16 @@ func main() {
 		}
 
 		output := GenerateBibliography(*outputMode, f)
+
+		if *appendToFile {
+			writeErr := ioutil.WriteFile(inputFile, append(f, output...), 0644)
+			if writeErr != nil {
+				fmt.Println("Can't write to file: %s", inputFile)
+			} else {
+				continue
+			}
+		}
+
 		fmt.Println(string(output))
 	}
 }
