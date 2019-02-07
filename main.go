@@ -7,19 +7,6 @@ import (
 	"io/ioutil"
 )
 
-type LinkInfo struct {
-	Title       string
-	Destination string
-}
-type LinkRenderer struct {
-	// The output should be written to the supplied writer w. If your
-	// implementation has no header to write, supply an empty implementation.
-	// RenderHeader(w io.Writer, ast *blackfriday.Node)
-
-	// RenderFooter is a symmetric counterpart of RenderHeader.
-	// RenderFooter(w io.Writer, ast *blackfriday.Node)
-}
-
 func Visitor(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 	// only use 2nd pass
 	if !entering {
@@ -36,8 +23,16 @@ func Visitor(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 	return blackfriday.GoToNext
 }
 
-func (r *LinkRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {}
-func (r *LinkRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {}
+type LinkRenderer struct{}
+
+// empty declarations to implement the blackfriday.Renderer interface
+func (r *LinkRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {
+	w.Write([]byte("<ul>"))
+}
+func (r *LinkRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {
+	w.Write([]byte("\n</ul>"))
+}
+
 func (r *LinkRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 	// only use 2nd pass
 	if !entering {
@@ -48,29 +43,29 @@ func (r *LinkRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering 
 				// fmt.Println(string(node.LinkData.Title))
 				// LinkData.Title is always empty, use FirstChild.Literal instead
 				// fmt.Println(string(node.FirstChild.Literal), string(node.LinkData.Destination))
-				w.Write([]byte("\n"))
+				w.Write([]byte("\n<li>"))
 				w.Write(node.FirstChild.Literal)
-				w.Write([]byte("\n"))
+				w.Write([]byte(" - <a href=\""))
 				w.Write(node.LinkData.Destination)
-				w.Write([]byte("\n"))
+				w.Write([]byte("\">"))
+				w.Write(node.LinkData.Destination)
+				w.Write([]byte("</a>"))
+				w.Write([]byte("</li>"))
 			}
 		}
 	}
 	return blackfriday.GoToNext
 }
 
-func GetLinks(input []byte) []LinkInfo {
-
+func GenerateBibiography(input []byte) []byte {
 	linkRenderer := &LinkRenderer{}
 	output := blackfriday.Run(input, blackfriday.WithNoExtensions(), blackfriday.WithRenderer(linkRenderer))
-	fmt.Println(string(output))
-
-	return []LinkInfo{LinkInfo{"a", "b"}}
+	return output
 }
 
 func main() {
 	fmt.Println(
-		" ____________________ Markdown Link Parser ____________________",
+		" ____________________ Markdown Link Extractor ____________________",
 	)
 
 	f, err := ioutil.ReadFile("README.md")
@@ -78,8 +73,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	a := GetLinks(f)
-	for i := 0; i < len(a); i++ {
-		// fmt.Println(a[i])
-	}
+	output := GenerateBibiography(f)
+	fmt.Println(string(output))
 }
