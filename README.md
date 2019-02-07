@@ -1,5 +1,4 @@
-# Markdown link parser
-
+# [Markdown link parser](#something)
 
 I started writing articles for my blog 
 At the end of every article I write, I want a list of the links in the article
@@ -25,36 +24,11 @@ Internally, hugo also uses this package to translate markdown into html.
 
 [hugo docs content management section](https://gohugo.io/content-management/formats/)
 
-### Sidenote: A package manager
+### A regex alternative
 
-Up until now I have relied on the `go get` command for all my go projects, but since I'm going to publish this code, I wanted to use a tool like pip or npm for dependency management. [Dep](https://golang.github.io/dep/docs/) is an equivalent go tool, so I'll give it a try.
-
-- installing Dep with [Homebrew](https://brew.sh)
-
-```sh
-brew install dep
+```regex
+(?|(?<txt>(?<url>(?:ht|f)tps?://\S+(?<=\PP)))|\(([^)]+)\)\[(\g<url>)])
 ```
-
-- initialising a dep project
-
-```sh
-dep init
-```
-
-- adding blackfriday as a dependency in `Gopkg.toml`
-
-```toml
-required = ["github.com/russross/blackfriday"]
-[[constraint]]
-  name = "github.com/russross/blackfriday"
-  version = "2.0.0"
-```
-
-- running dep ensure to install
-```sh
-dep ensure
-```
-
-### A regex 
 
 https://regex101.com/r/mL3hA8/1
+
